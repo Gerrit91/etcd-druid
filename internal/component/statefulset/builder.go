@@ -216,11 +216,26 @@ func (b *stsBuilder) getHostAliases() []corev1.HostAlias {
 }
 
 func (b *stsBuilder) getPodTemplateAnnotations(ctx component.OperatorContext) map[string]string {
+	var checksums map[string]string
+
 	if configMapCheckSum, ok := ctx.Data[common.CheckSumKeyConfigMap]; ok {
-		return utils.MergeMaps(b.etcd.Spec.Annotations, map[string]string{
+		checksums = map[string]string{
 			common.CheckSumKeyConfigMap: configMapCheckSum,
-		})
+		}
 	}
+
+	if encryptionSecretCheckSum, ok := ctx.Data[common.CheckSumKeyEncryptionSecret]; ok {
+		if checksums == nil {
+			checksums = map[string]string{}
+		}
+
+		checksums[common.CheckSumKeyEncryptionSecret] = encryptionSecretCheckSum
+	}
+
+	if checksums != nil {
+		return utils.MergeMaps(b.etcd.Spec.Annotations, checksums)
+	}
+
 	return b.etcd.Spec.Annotations
 }
 
@@ -291,6 +306,10 @@ func (b *stsBuilder) getBackupRestoreContainerVolumeMounts() []corev1.VolumeMoun
 		corev1.VolumeMount{
 			Name:      common.VolumeNameEtcdConfig,
 			MountPath: etcdConfigFileMountPath,
+		},
+		corev1.VolumeMount{
+			Name:      common.VolumeNameEtcdBackupEncryptionConfig,
+			MountPath: common.VolumeMountPathBackupRestoreBackupEncryptionConfig,
 		},
 	)
 	brVolumeMounts = append(brVolumeMounts, getBackupRestoreContainerSecretVolumeMounts(b.etcd)...)
@@ -532,6 +551,9 @@ func (b *stsBuilder) getBackupStoreCommandArgs() []string {
 	if b.etcd.Spec.Backup.Store.EndpointOverride != nil {
 		commandArgs = append(commandArgs, fmt.Sprintf("--store-endpoint-override=%s", *b.etcd.Spec.Backup.Store.EndpointOverride))
 	}
+	if len(b.etcd.Spec.Backup.EncryptionKeyRefs) > 0 {
+		commandArgs = append(commandArgs, fmt.Sprintf("--backup-encryption-config=%s", common.VolumeMountPathBackupRestoreBackupEncryptionConfig))
+	}
 
 	// Full snapshot command line args
 	// -----------------------------------------------------------------------------------------------------------------
@@ -743,6 +765,18 @@ func (b *stsBuilder) getPodVolumes(ctx component.OperatorContext) ([]corev1.Volu
 			volumes = append(volumes, *backupVolume)
 		}
 	}
+
+	if len(b.etcd.Spec.Backup.EncryptionKeyRefs) > 0 {
+		volumes = append(volumes, corev1.Volume{
+			Name: common.VolumeNameEtcdBackupEncryptionConfig,
+			VolumeSource: corev1.VolumeSource{
+				Secret: &corev1.SecretVolumeSource{
+					SecretName: druidv1alpha1.GetEncryptionConfigSecretName(b.etcd.ObjectMeta),
+				},
+			},
+		})
+	}
+
 	return volumes, nil
 }
 

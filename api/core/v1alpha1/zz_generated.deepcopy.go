@@ -103,6 +103,17 @@ func (in *BackupSpec) DeepCopyInto(out *BackupSpec) {
 		*out = new(LeaderElectionSpec)
 		(*in).DeepCopyInto(*out)
 	}
+	if in.EncryptionKeyRefs != nil {
+		in, out := &in.EncryptionKeyRefs, &out.EncryptionKeyRefs
+		*out = make([]*v1.SecretReference, len(*in))
+		for i := range *in {
+			if (*in)[i] != nil {
+				in, out := &(*in)[i], &(*out)[i]
+				*out = new(v1.SecretReference)
+				**out = **in
+			}
+		}
+	}
 	return
 }
 

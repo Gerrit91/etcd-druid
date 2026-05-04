@@ -198,6 +198,11 @@ type BackupSpec struct {
 	// LeaderElection defines parameters related to the LeaderElection configuration.
 	// +optional
 	LeaderElection *LeaderElectionSpec `json:"leaderElection,omitempty"`
+
+	// EncryptionKeyRefs are references to a secrets used for encrypting files before they are being pushed to a backup provider.
+	// Keys in the secrets are expected to contain a 32-byte key for symmetric encryption of the data and will be passed on to the etcd-backup-restore sidecar.
+	// This needs to be slice in order to support rotation of keys.
+	EncryptionKeyRefs []*corev1.SecretReference `json:"backupEncryptionKeyRefs,omitempty"`
 }
 
 // SnapshotCompactionSpec defines parameters related to the compaction job configuration.

@@ -9,6 +9,10 @@ const (
 	// place an annotation on the StatefulSet pods. The value contains the check-sum of the latest configmap that
 	// should be reflected on the pods.
 	CheckSumKeyConfigMap = "checksum/etcd-configmap"
+	// CheckSumKeyEncryptionSecret is the key that is set by a encryption secret component and used by StatefulSet component to
+	// place an annotation on the StatefulSet pods. The value contains the check-sum of the latest encryption secret that
+	// should be reflected on the pods.
+	CheckSumKeyEncryptionSecret = "checksum/etcd-encryption-secret"
 )
 
 // LeaseAnnotationKeyPeerURLTLSEnabled is the annotation key present on the member lease.
@@ -147,6 +151,9 @@ const (
 	VolumeNameLocalBackup = "local-backup"
 	// VolumeNameProviderBackupSecret is the name of the volume that contains the provider backup secret.
 	VolumeNameProviderBackupSecret = "etcd-backup-secret" // #nosec G101 -- this is the name of the mounted volume for backup secret, and not the credential itself.
+
+	// VolumeNameEtcdBackupEncryptionConfig is the name of the volume that contains the etcd backup encryption configuration.
+	VolumeNameEtcdBackupEncryptionConfig = "etcd-backup-encryption-config"
 )
 
 // EtcdConfigFileName is the name of the etcd configuration file.
@@ -173,6 +180,9 @@ const (
 	VolumeMountPathBackupRestoreServerTLS = "/var/etcdbr/ssl/server"
 	// VolumeMountPathBackupRestoreClientTLS is the path on a container where the client certificate-key pair used by the client to communicate to the backup-restore server is mounted.
 	VolumeMountPathBackupRestoreClientTLS = "/var/etcdbr/ssl/client"
+
+	// VolumeMountPathBackupRestoreBackupEncryptionConfig is the path on a container where the encryption configuration file for encprypting etcd backups for the backup-restore container is mounted.
+	VolumeMountPathBackupRestoreBackupEncryptionConfig = "/var/etcdbr/encryption/config.yaml"
 
 	// VolumeMountPathGCSBackupSecret is the path on a container where the GCS backup secret is mounted.
 	VolumeMountPathGCSBackupSecret = "/var/.gcp/" // #nosec G101 -- this is a path to the GCP backup credentials file, and not the credential itself.

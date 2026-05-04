@@ -207,6 +207,7 @@ func (r *Reconciler) getOrderedOperatorsForSync(etcdObjMeta metav1.ObjectMeta) [
 	// add the rest of the operators that are always needed for the etcd cluster
 	operators = append(operators,
 		component.ConfigMapKind,
+		component.EncryptionConfigurationSecretKind,
 		component.StatefulSetKind,
 	)
 

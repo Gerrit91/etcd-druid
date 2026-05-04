@@ -67,13 +67,6 @@ function parse_flags() {
   done
 }
 
-function clamp_mss_to_pmtu() {
-  # https://github.com/kubernetes/test-infra/issues/23741
-  if [[ "$OSTYPE" != "darwin"* ]]; then
-    iptables -t mangle -A POSTROUTING -p tcp --tcp-flags SYN,RST SYN -j TCPMSS --clamp-mss-to-pmtu
-  fi
-}
-
 function generate_kind_config() {
   echo "Generating kind cluster config..."
   # Ensure the directory exists
@@ -171,7 +164,6 @@ EOF
 function main() {
   check_prerequisites
   parse_flags "$@"
-  clamp_mss_to_pmtu
   if [ "${DEPLOY_REGISTRY}" = true ]; then
     create_local_docker_registry_container
   fi

@@ -72,6 +72,41 @@ _Appears in:_
 | `etcdOpsTask` _[EtcdOpsTaskControllerConfiguration](#etcdopstaskcontrollerconfiguration)_ | EtcdOpsTask is the configuration for the EtcdOpsTask controller. |  |  |
 
 
+
+
+#### EncryptionKey
+
+
+
+
+
+
+
+_Appears in:_
+- [EncryptionProviderAesGCM](#encryptionprovideraesgcm)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `name` _string_ | Name is the name of the encryption key. |  |  |
+| `secret` _string_ | Secret is the encryption secret. |  |  |
+
+
+#### EncryptionProviderAesGCM
+
+
+
+
+
+
+
+_Appears in:_
+- [EncryptionConfiguration](#encryptionconfiguration)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `keys` _[EncryptionKey](#encryptionkey) array_ | Keys contains the encryption keys for the provider. |  |  |
+
+
 #### EtcdComponentProtectionWebhookConfiguration
 
 
@@ -470,6 +505,7 @@ _Appears in:_
 | `enableProfiling` _boolean_ | EnableProfiling defines if profiling should be enabled for the etcd-backup-restore-sidecar |  |  |
 | `etcdSnapshotTimeout` _[Duration](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.29/#duration-v1-meta)_ | EtcdSnapshotTimeout defines the timeout duration for etcd FullSnapshot operation |  | Pattern: `^([0-9]+(\.[0-9]+)?(ns\|us\|µs\|ms\|s\|m\|h))+$` <br />Type: string <br /> |
 | `leaderElection` _[LeaderElectionSpec](#leaderelectionspec)_ | LeaderElection defines parameters related to the LeaderElection configuration. |  |  |
+| `backupEncryptionKeyRefs` _[SecretReference](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.29/#secretreference-v1-core) array_ | EncryptionKeyRefs are references to a secrets used for encrypting files before they are being pushed to a backup provider.<br />Keys in the secrets are expected to contain a 32-byte key for symmetric encryption of the data and will be passed on to the etcd-backup-restore sidecar.<br />This needs to be slice in order to support rotation of keys. |  |  |
 
 
 #### ClientService

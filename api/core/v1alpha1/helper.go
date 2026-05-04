@@ -34,6 +34,11 @@ func GetConfigMapName(etcdObjMeta metav1.ObjectMeta) string {
 	return fmt.Sprintf("%s-config", etcdObjMeta.Name)
 }
 
+// GetEncryptionConfigSecretName returns the name of the encryption secret for the Etcd.
+func GetEncryptionConfigSecretName(etcdObjMeta metav1.ObjectMeta) string {
+	return fmt.Sprintf("%s-encryption-config", etcdObjMeta.Name)
+}
+
 // GetCompactionJobName returns the compaction job name for the Etcd.
 func GetCompactionJobName(etcdObjMeta metav1.ObjectMeta) string {
 	return fmt.Sprintf("%s-compactor", etcdObjMeta.Name)

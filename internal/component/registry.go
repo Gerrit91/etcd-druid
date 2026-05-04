@@ -39,6 +39,8 @@ const (
 	ClientServiceKind Kind = "ClientService"
 	// PodDisruptionBudgetKind indicates that the kind of component is a PodDisruptionBudget.
 	PodDisruptionBudgetKind Kind = "PodDisruptionBudget"
+	// EncryptionConfigurationSecretKind indicates that the kind of component is a Secret containing the encryption configuration.
+	EncryptionConfigurationSecretKind Kind = "EncryptionConfigurationSecret"
 )
 
 type registry struct {
