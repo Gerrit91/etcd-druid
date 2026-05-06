@@ -6,6 +6,7 @@ package statefulset
 
 import (
 	"fmt"
+	"path"
 
 	druidv1alpha1 "github.com/gardener/etcd-druid/api/core/v1alpha1"
 	"github.com/gardener/etcd-druid/internal/common"
@@ -555,7 +556,7 @@ func (b *stsBuilder) getBackupStoreCommandArgs() []string {
 		commandArgs = append(commandArgs, fmt.Sprintf("--store-endpoint-override=%s", *b.etcd.Spec.Backup.Store.EndpointOverride))
 	}
 	if len(b.etcd.Spec.Backup.EncryptionKeyRefs) > 0 {
-		commandArgs = append(commandArgs, fmt.Sprintf("--backup-encryption-config=%s", common.VolumeMountPathBackupRestoreBackupEncryptionConfig))
+		commandArgs = append(commandArgs, fmt.Sprintf("--backup-encryption-config=%s", path.Join(common.VolumeMountPathBackupRestoreBackupEncryptionConfig, common.BackupEncryptionConfigFileName)))
 	}
 
 	// Full snapshot command line args

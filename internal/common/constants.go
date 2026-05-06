@@ -159,6 +159,8 @@ const (
 // EtcdConfigFileName is the name of the etcd configuration file.
 const EtcdConfigFileName = "etcd.conf.yaml"
 
+const BackupEncryptionConfigFileName = "config.yaml"
+
 // ModeOwnerReadWriteGroupRead is the file permissions used for volumes
 const ModeOwnerReadWriteGroupRead int32 = 0640
 
@@ -182,7 +184,7 @@ const (
 	VolumeMountPathBackupRestoreClientTLS = "/var/etcdbr/ssl/client"
 
 	// VolumeMountPathBackupRestoreBackupEncryptionConfig is the path on a container where the encryption configuration file for encprypting etcd backups for the backup-restore container is mounted.
-	VolumeMountPathBackupRestoreBackupEncryptionConfig = "/var/etcdbr/encryption/config.yaml"
+	VolumeMountPathBackupRestoreBackupEncryptionConfig = "/var/etcdbr/encryption"
 
 	// VolumeMountPathGCSBackupSecret is the path on a container where the GCS backup secret is mounted.
 	VolumeMountPathGCSBackupSecret = "/var/.gcp/" // #nosec G101 -- this is a path to the GCP backup credentials file, and not the credential itself.
