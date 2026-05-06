@@ -307,12 +307,15 @@ func (b *stsBuilder) getBackupRestoreContainerVolumeMounts() []corev1.VolumeMoun
 			Name:      common.VolumeNameEtcdConfig,
 			MountPath: etcdConfigFileMountPath,
 		},
-		corev1.VolumeMount{
-			Name:      common.VolumeNameEtcdBackupEncryptionConfig,
-			MountPath: common.VolumeMountPathBackupRestoreBackupEncryptionConfig,
-		},
 	)
 	brVolumeMounts = append(brVolumeMounts, getBackupRestoreContainerSecretVolumeMounts(b.etcd)...)
+
+	if len(b.etcd.Spec.Backup.EncryptionKeyRefs) > 0 {
+		brVolumeMounts = append(brVolumeMounts, corev1.VolumeMount{
+			Name:      common.VolumeNameEtcdBackupEncryptionConfig,
+			MountPath: common.VolumeMountPathBackupRestoreBackupEncryptionConfig,
+		})
+	}
 
 	if b.etcd.IsBackupStoreEnabled() {
 		etcdBackupVolumeMount := b.getEtcdBackupVolumeMount()
