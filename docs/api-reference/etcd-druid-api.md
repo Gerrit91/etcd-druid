@@ -78,11 +78,12 @@ _Appears in:_
 
 
 
-
+EncryptionKey contains the encryption key.
 
 
 
 _Appears in:_
+- [EncryptionProviderAesCbc](#encryptionprovideraescbc)
 - [EncryptionProviderAesGCM](#encryptionprovideraesgcm)
 
 | Field | Description | Default | Validation |
@@ -91,11 +92,11 @@ _Appears in:_
 | `secret` _string_ | Secret is the encryption secret. |  |  |
 
 
-#### EncryptionProviderAesGCM
+#### EncryptionProvider
 
 
 
-
+EncryptionProvider describes the encryption provider to be used. Only one provider type may be specified per entry.
 
 
 
@@ -104,7 +105,42 @@ _Appears in:_
 
 | Field | Description | Default | Validation |
 | --- | --- | --- | --- |
+| `aesgcm` _[EncryptionProviderAesGCM](#encryptionprovideraesgcm)_ | AesGcmProvider provides encryption using AES-GCM. |  |  |
+| `aescbc` _[EncryptionProviderAesCbc](#encryptionprovideraescbc)_ | AesGcmProvider provides encryption using AES-CBC. |  |  |
+
+
+#### EncryptionProviderAesCbc
+
+
+
+EncryptionProviderAesCbc is the encryption provider using AES-CBC.
+
+
+
+_Appears in:_
+- [EncryptionProvider](#encryptionprovider)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
 | `keys` _[EncryptionKey](#encryptionkey) array_ | Keys contains the encryption keys for the provider. |  |  |
+
+
+#### EncryptionProviderAesGCM
+
+
+
+EncryptionProviderAesGCM is the encryption provider using AES-GCM.
+
+
+
+_Appears in:_
+- [EncryptionProvider](#encryptionprovider)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `keys` _[EncryptionKey](#encryptionkey) array_ | Keys contains the encryption keys for the provider. |  |  |
+
+
 
 
 #### EtcdComponentProtectionWebhookConfiguration

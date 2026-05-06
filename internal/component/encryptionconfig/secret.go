@@ -4,9 +4,11 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
+	"slices"
 
 	druidapicommon "github.com/gardener/etcd-druid/api/common"
 	v1alpha1config "github.com/gardener/etcd-druid/api/config/v1alpha1"
+	"github.com/gardener/etcd-druid/api/config/v1alpha1/validation"
 	"github.com/gardener/etcd-druid/api/core/v1alpha1"
 	druidv1alpha1 "github.com/gardener/etcd-druid/api/core/v1alpha1"
 	"github.com/gardener/etcd-druid/internal/common"
@@ -19,6 +21,7 @@ import (
 	"k8s.io/apimachinery/pkg/types"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
+	"sigs.k8s.io/yaml"
 )
 
 const (
@@ -73,7 +76,12 @@ func (_ *_resource) PreSync(ctx component.OperatorContext, etcd *v1alpha1.Etcd) 
 }
 
 func (r *_resource) Sync(ctx component.OperatorContext, etcd *v1alpha1.Etcd) error {
-	config := v1alpha1config.EncryptionConfiguration{}
+	config := v1alpha1config.EncryptionConfiguration{
+		TypeMeta: metav1.TypeMeta{
+			Kind:       "EncryptionConfiguration",
+			APIVersion: v1alpha1config.SchemeGroupVersion.String(),
+		},
+	}
 
 	for _, secretRef := range etcd.Spec.Backup.EncryptionKeyRefs {
 		secret := corev1.Secret{}
@@ -89,32 +97,48 @@ func (r *_resource) Sync(ctx component.OperatorContext, etcd *v1alpha1.Etcd) err
 			return fmt.Errorf("secret data is nil")
 		}
 
-		switch provider := secret.Data[DataKeyEncryptionProvider]; string(provider) {
-		case "aesgcm":
-			if config.AesGcmProvider == nil {
-				config.AesGcmProvider = &v1alpha1config.EncryptionProviderAesGCM{}
+		key := v1alpha1config.EncryptionKey{
+			Name:   string(secret.Data[DataKeyEncryptionKeyName]),
+			Secret: []byte(base64.RawStdEncoding.EncodeToString(secret.Data[DataKeyEncryptionSecret])),
+		}
+
+		switch provider := secret.Data[DataKeyEncryptionProvider]; v1alpha1config.EncryptionProviderType(provider) {
+		case v1alpha1config.EncryptionProviderTypeAESGCM:
+			if idx := slices.IndexFunc(config.Providers, func(p v1alpha1config.EncryptionProvider) bool {
+				return p.AesGcmProvider != nil
+			}); idx >= 0 {
+				config.Providers[idx].AesGcmProvider.Keys = append(config.Providers[idx].AesGcmProvider.Keys, key)
+			} else {
+				config.Providers = append(config.Providers, v1alpha1config.EncryptionProvider{
+					AesGcmProvider: &v1alpha1config.EncryptionProviderAesGCM{
+						Keys: []v1alpha1config.EncryptionKey{key},
+					},
+				})
 			}
 
-			config.AesGcmProvider.Keys = append(config.AesGcmProvider.Keys, v1alpha1config.EncryptionKey{
-				Name:   string(secret.Data[DataKeyEncryptionKeyName]),
-				Secret: string(secret.Data[DataKeyEncryptionSecret]),
-			})
-		case "aescbc":
-			if config.AesCbcProvider == nil {
-				config.AesCbcProvider = &v1alpha1config.EncryptionProviderAesCbc{}
+		case v1alpha1config.EncryptionProviderTypeAESCBC:
+			if idx := slices.IndexFunc(config.Providers, func(p v1alpha1config.EncryptionProvider) bool {
+				return p.AesCbcProvider != nil
+			}); idx >= 0 {
+				config.Providers[idx].AesCbcProvider.Keys = append(config.Providers[idx].AesCbcProvider.Keys, key)
+			} else {
+				config.Providers = append(config.Providers, v1alpha1config.EncryptionProvider{
+					AesCbcProvider: &v1alpha1config.EncryptionProviderAesCbc{
+						Keys: []v1alpha1config.EncryptionKey{key},
+					},
+				})
 			}
 
-			config.AesCbcProvider.Keys = append(config.AesCbcProvider.Keys, v1alpha1config.EncryptionKey{
-				Name:   string(secret.Data[DataKeyEncryptionKeyName]),
-				Secret: base64.RawStdEncoding.EncodeToString(secret.Data[DataKeyEncryptionSecret]),
-			})
 		default:
 			return fmt.Errorf("provider not supported (yet): %s", provider)
 		}
-
 	}
 
-	encoded, err := json.MarshalIndent(config, "", "    ")
+	if errList := validation.ValidateEncryptionConfiguration(&config); len(errList) > 0 {
+		return fmt.Errorf("error constructing encryption config: %w", errList.ToAggregate())
+	}
+
+	encoded, err := yaml.Marshal(config)
 	if err != nil {
 		return fmt.Errorf("unable to encode encryption config: %w", err)
 	}
