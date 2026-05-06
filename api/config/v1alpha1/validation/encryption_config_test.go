@@ -111,6 +111,23 @@ func TestValidateEncryptionConfiguration(t *testing.T) {
 			matcher: ConsistOf(PointTo(MatchFields(IgnoreExtras, Fields{"Type": Equal(field.ErrorTypeDuplicate), "Field": Equal("providers[0].aesgcm[1].name"), "BadValue": Equal("key1")}))),
 		},
 		{
+			name: "name must not be empty",
+			config: &druidconfigv1alpha1.EncryptionConfiguration{
+				Providers: []druidconfigv1alpha1.EncryptionProvider{
+					{
+						AesGcmProvider: &druidconfigv1alpha1.EncryptionProviderAesGCM{
+							Keys: []druidconfigv1alpha1.EncryptionKey{
+								{
+									Secret: []byte(validEncodedKey),
+								},
+							},
+						},
+					},
+				},
+			},
+			matcher: ConsistOf(PointTo(MatchFields(IgnoreExtras, Fields{"Type": Equal(field.ErrorTypeInvalid), "Field": Equal("providers[0].aesgcm[0].name"), "Detail": Equal("name must not be empty")}))),
+		},
+		{
 			name: "malformed key",
 			config: &druidconfigv1alpha1.EncryptionConfiguration{
 				Providers: []druidconfigv1alpha1.EncryptionProvider{

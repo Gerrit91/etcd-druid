@@ -60,6 +60,10 @@ func validateEncryptionKeys(keys []druidconfigv1alpha1.EncryptionKey, fldPath *f
 			allErrs = append(allErrs, field.Duplicate(fldPath.Index(i).Child("name"), key.Name))
 		}
 
+		if key.Name == "" {
+			allErrs = append(allErrs, field.Invalid(fldPath.Index(i).Child("name"), key.Name, "name must not be empty"))
+		}
+
 		names[key.Name] = true
 
 		bytes, err := base64.RawStdEncoding.DecodeString(string(key.Secret))
