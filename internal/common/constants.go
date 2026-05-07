@@ -9,10 +9,10 @@ const (
 	// place an annotation on the StatefulSet pods. The value contains the check-sum of the latest configmap that
 	// should be reflected on the pods.
 	CheckSumKeyConfigMap = "checksum/etcd-configmap"
-	// CheckSumKeyEncryptionSecret is the key that is set by a encryption secret component and used by StatefulSet component to
+	// CheckSumKeyBackupEncryptionSecret is the key that is set by a encryption secret component and used by StatefulSet component to
 	// place an annotation on the StatefulSet pods. The value contains the check-sum of the latest encryption secret that
 	// should be reflected on the pods.
-	CheckSumKeyEncryptionSecret = "checksum/etcd-encryption-secret"
+	CheckSumKeyBackupEncryptionSecret = "checksum/etcd-backup-encryption-secret"
 )
 
 // LeaseAnnotationKeyPeerURLTLSEnabled is the annotation key present on the member lease.

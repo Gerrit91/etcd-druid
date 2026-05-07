@@ -225,12 +225,12 @@ func (b *stsBuilder) getPodTemplateAnnotations(ctx component.OperatorContext) ma
 		}
 	}
 
-	if encryptionSecretCheckSum, ok := ctx.Data[common.CheckSumKeyEncryptionSecret]; ok {
+	if encryptionSecretCheckSum, ok := ctx.Data[common.CheckSumKeyBackupEncryptionSecret]; ok {
 		if checksums == nil {
 			checksums = map[string]string{}
 		}
 
-		checksums[common.CheckSumKeyEncryptionSecret] = encryptionSecretCheckSum
+		checksums[common.CheckSumKeyBackupEncryptionSecret] = encryptionSecretCheckSum
 	}
 
 	if checksums != nil {
