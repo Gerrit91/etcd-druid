@@ -76,6 +76,10 @@ func (_ *_resource) PreSync(ctx component.OperatorContext, etcd *v1alpha1.Etcd) 
 }
 
 func (r *_resource) Sync(ctx component.OperatorContext, etcd *v1alpha1.Etcd) error {
+	if len(etcd.Spec.Backup.EncryptionKeyRefs) == 0 {
+		return nil
+	}
+
 	config := v1alpha1config.EncryptionConfiguration{
 		TypeMeta: metav1.TypeMeta{
 			Kind:       "EncryptionConfiguration",
@@ -166,7 +170,7 @@ func (r *_resource) Sync(ctx component.OperatorContext, etcd *v1alpha1.Etcd) err
 			component.OperationSync,
 			fmt.Sprintf("Error when computing CheckSum for encryption secret for etcd: %v", druidv1alpha1.GetNamespaceName(etcd.ObjectMeta)))
 	}
-	ctx.Data[common.CheckSumKeyEncryptionSecret] = checkSum
+	ctx.Data[common.CheckSumKeyBackupEncryptionSecret] = checkSum
 	ctx.Logger.Info("synced", "component", "encryptionconfig", "name", secret.Name, "result", result)
 	return nil
 }
